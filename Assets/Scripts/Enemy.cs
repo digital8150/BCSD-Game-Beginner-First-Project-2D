@@ -20,7 +20,10 @@ public class Enemy : MonoBehaviour
     private GameObject deathParticlesPrefab;
     private Rigidbody2D rb;
     private SpriteRenderer spriteRenderer;
-    private float diePositiionY = -7f;
+    [SerializeField]
+    private float diePositiionY = -6f;
+
+
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     
     public void Setup(GameObject player)
@@ -59,7 +62,13 @@ public class Enemy : MonoBehaviour
     {
         if(transform.position.y < diePositiionY)
         {
-            OnDie();
+            OnDie(false);
+        }
+
+        //attack player if collided
+        if (target != null && Vector3.Distance(transform.position, target.transform.position) < 1.5f)
+        {
+            target.GetComponent<Player>().TakeDamage(damage);
         }
     }
 
@@ -68,15 +77,23 @@ public class Enemy : MonoBehaviour
         this.CurrentHealth -= damage;
         if (this.CurrentHealth <= 0)
         {
-            OnDie();
+            OnDie(true);
         }
     }
 
-    private void OnDie()
+    private void OnDie(bool killedbyplayer)
     {
         // Play death animation or sound here
         Instantiate(deathParticlesPrefab, transform.position, Quaternion.identity);
         Destroy(gameObject);
         GameManager.Instance.CurrentEnemyCount--;
+        if(killedbyplayer)
+        {
+            CameraEffectManager.Instance.ApplySaturationBoost();
+            CameraEffectManager.Instance.ApplyPostExposureBoost();
+            CameraEffectManager.Instance.ApplyCromaticAbb();
+            GameManager.Instance.score += 500;
+        }
+
     }
 }

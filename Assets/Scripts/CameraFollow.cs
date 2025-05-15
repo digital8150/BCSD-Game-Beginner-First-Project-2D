@@ -27,7 +27,7 @@ public class CameraFollow : MonoBehaviour
     void LateUpdate()
     {
         if (target == null) return;
-        Vector3 desiredPosition = new Vector3(target.position.x, target.position.y > initialY ? target.position.y : initialY, initialZ);
+        Vector3 desiredPosition = new Vector3(target.position.x, initialY, initialZ);
         Vector3 smoothedPosition = Vector3.SmoothDamp(transform.position, desiredPosition, ref velocity, smoothTime);
 
         transform.position = smoothedPosition;

@@ -46,6 +46,10 @@ public class Player : MonoBehaviour
     [Header("플레이어 체력")]
     public int maxHealth = 10; // 최대 체력
     private int currentHealth; // 현재 체력
+    [SerializeField]
+    private float invicibleDuration = 0.5f; // 무적 시간 (피격 시 잠시 무적 상태)
+    private bool isInvincible = false; // 현재 무적 상태인지 여부
+    private float invicibleStartTime = 0;
 
 
     [Header("스테미나 설정")]
@@ -108,9 +112,10 @@ public class Player : MonoBehaviour
 
 
 
-        // 스테미나 초기화
+        // 스텟 초기화
         currentStamina = maxStamina;
         lastStaminaUseTime = Time.time; // 시작 시 회복 바로 시작하도록 설정
+        currentHealth = maxHealth; // 체력 초기화
     }
 
     void Update()
@@ -159,9 +164,6 @@ public class Player : MonoBehaviour
             // ==== 실제 발포 로직 호출 ====
             Shoot();
             // ===========================
-
-            CameraEffectManager.Instance.ApplyCromaticAbb(); // 발포 시 색수차 효과 적용
-
         }
 
 
@@ -221,6 +223,13 @@ public class Player : MonoBehaviour
         if (isDashing && Time.time >= dashEndTime)
         {
             isDashing = false;
+        }
+
+        // ==== 무적 상태 처리 ====
+        if (isInvincible && Time.time - invicibleStartTime >= invicibleDuration)
+        {
+            isInvincible = false; // 무적 상태 해제
+            
         }
     }
 
@@ -308,20 +317,6 @@ public class Player : MonoBehaviour
     public void EndAttack()
     {
         isAttacking = false;
-    }
-
-    void OnDrawGizmosSelected()
-    {
-        if (groundCheck != null)
-        {
-            Gizmos.color = Color.red;
-            Gizmos.DrawWireSphere(groundCheck.position, groundCheckRadius);
-        }
-        // if (ceilingCheck != null)
-        // {
-        //     Gizmos.color = Color.blue;
-        //     Gizwis.DrawWireSphere(ceilingCheck.position, ceilingCheckRadius);
-        // }
     }
 
     public float CurrentStamina
@@ -418,7 +413,9 @@ public class Player : MonoBehaviour
     {
         // 이미 죽은 상태면 다시 처리하지 않음
         if (isDead) return;
-
+        CameraEffectManager.Instance.ApplyCameraShake();
+        CameraEffectManager.Instance.ApplyCromaticAbb();
+        CameraEffectManager.Instance.SetSaturation(-100);
         isDead = true; // 죽음 상태 플래그 설정
         Debug.Log("Player Died!"); // 디버그 메시지
 
@@ -458,10 +455,17 @@ public class Player : MonoBehaviour
     public void TakeDamage(int damage)
     {
         if (isDead) return;
+        if (isInvincible) return; // 무적 상태일 때는 피해를 받지 않음
+        CameraEffectManager.Instance.SetSaturation(-(maxHealth - CurrentHealth)*5);
         currentHealth -= damage;
-        if(currentHealth <= 0)
+        Debug.Log($"데미지 입음 : {damage} 체력 : {CurrentHealth}");
+        if (currentHealth <= 0)
         {
             Die();
         }
+        CameraEffectManager.Instance.ApplyCameraShake(0.15f, 0.1f);
+        //무적적용
+        isInvincible = true;
+        invicibleStartTime = Time.time;
     }
 }

@@ -7,24 +7,33 @@ using UnityEngine.UI;
 
 public class GameManager : SingleTone<GameManager>
 {
+    [Header("UI 설정")]
     [SerializeField]
     GameObject staminaSlider;
     [SerializeField]
-    Player player;
+    GameObject healthSlider;
     [SerializeField]
-    int maxEnemyCount = 20;
-    public int CurrentEnemyCount { get; set; } = 0;
+    TextMeshProUGUI scoreText;
+    [Header("오브젝트 연결")]
+    [SerializeField]
+    GameObject mainCamera;
+    [SerializeField]
+    Player player;
     [SerializeField]
     GameObject enemyPrefab;
     [SerializeField]
-    GameObject mainCamera;
+    int maxEnemyCount = 20;
+    public int CurrentEnemyCount { get; set; } = 0;
+
+    public int score = 0;
 
 
 
     public override void Awake()
     {
         staminaSlider.GetComponent<PositionAutoSetter>().Setup(player.transform);
-        RemoveDuplicates();
+        healthSlider.GetComponent<PositionAutoSetter>().Setup(player.transform);
+        base.Awake();
     }
 
 
@@ -33,7 +42,7 @@ public class GameManager : SingleTone<GameManager>
 
     private void FixedUpdate()
     {
-        // 5초마다, 카메라 위에서, 카메라 가로 범위 내에서 적 생성
+        // n초마다, 적 생성
         enemySpawnTimer += Time.fixedDeltaTime;
         if (enemyPrefab != null && CurrentEnemyCount < maxEnemyCount && enemySpawnTimer >= enemySpawnInterval)
         {
@@ -42,13 +51,15 @@ public class GameManager : SingleTone<GameManager>
             float camWidth = camHeight * cam.aspect;
 
             Vector3 camPos = cam.transform.position;
-            float spawnX = Random.Range(camPos.x - camWidth / 2f, camPos.x + camWidth / 2f);
-            float spawnY = camPos.y + camHeight / 2f + 2f; // 카메라 위 2유닛
+            
+            float spawnX = Random.Range(-1,1) < 0 ?  camPos.x - camWidth / 2f - 2 : camPos.x + camWidth / 2f + 2;
+            float spawnY = camPos.y;
 
             var clone = Instantiate(enemyPrefab, new Vector3(spawnX, spawnY, 0), Quaternion.identity);
             clone.GetComponent<Enemy>().Setup(player.gameObject);
             CurrentEnemyCount++;
             enemySpawnTimer = 0f;
+            enemySpawnInterval = Random.Range(1f, 5f);
         }
     }
 
@@ -63,6 +74,20 @@ public class GameManager : SingleTone<GameManager>
         {
             staminaSlider.SetActive(false);
         }
-        
+
+        if (player.CurrentHealth < player.maxHealth)
+        {
+            healthSlider.SetActive(true);
+            healthSlider.GetComponent<Slider>().value = (float)player.CurrentHealth / (float)player.maxHealth;
+        }
+        else
+        {
+            healthSlider.SetActive(false);
+        }
+
+        if (scoreText != null)
+        {
+            scoreText.text = "점수\n" + score.ToString();
+        }
     }
 }
