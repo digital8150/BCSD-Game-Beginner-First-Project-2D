@@ -1,3 +1,55 @@
-version https://git-lfs.github.com/spec/v1
-oid sha256:12321ae55b262bcf0d70916f808519add22a660a1c858efb51e908874fac347e
-size 1239
+using Unity.IO.LowLevel.Unsafe;
+using Unity.VisualScripting;
+using UnityEngine;
+
+public class SingleTone<T> : MonoBehaviour where T : Component
+{
+    private static T instance;
+
+    public static T Instance
+    {
+        get
+        {
+            if (instance == null)
+            {
+                instance = (T)FindObjectOfType(typeof(T));
+                if (instance == null)
+                {
+                    SetupInstance();
+                
+                }
+            }
+            return instance;
+        }
+    }
+
+    public virtual void Awake()
+    {
+        RemoveDuplicates();
+    }
+
+    protected void RemoveDuplicates()
+    {
+        if (instance == null)
+        {
+            instance = this as T;
+            DontDestroyOnLoad(gameObject);
+        }
+        else
+        {
+            Destroy(gameObject);
+        }
+    }
+
+    private static void SetupInstance()
+    {
+        instance = (T)FindObjectOfType(typeof(T));
+        if (instance == null)
+        {
+            GameObject gameObj = new GameObject();
+            gameObj.name = typeof(T).Name;
+            instance = gameObj.AddComponent<T>();
+            DontDestroyOnLoad(gameObj);
+        }
+    }
+}
