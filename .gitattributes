@@ -1,3 +1,2 @@
-/Assets/** filter=lfs diff=lfs merge=lfs -text
 Assets/Font/PretendardVariable-8K-FULL.asset filter=lfs diff=lfs merge=lfs -text
 Assets/Font/PretendardVariable[[:space:]]8K[[:space:]]FULL.asset filter=lfs diff=lfs merge=lfs -text
