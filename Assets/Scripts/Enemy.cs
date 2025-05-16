@@ -102,6 +102,13 @@ public class Enemy : MonoBehaviour
             CameraEffectManager.Instance.ApplySlowMotion();
             GameManager.Instance.score += 500;
         }
+    }
 
+    public void kill()
+    {
+        // Play death animation or sound here
+        Instantiate(deathParticlesPrefab, transform.position, Quaternion.identity);
+        Destroy(gameObject);
+        GameManager.Instance.CurrentEnemyCount--;
     }
 }

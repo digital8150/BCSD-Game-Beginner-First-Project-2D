@@ -82,7 +82,7 @@ public class Player : MonoBehaviour
     public GameObject deathParticlesPrefab; // 플레이어 죽을 때 생성될 파티클 시스템 프리팹 (인스펙터에서 연결)
     private bool isDead = false; // 플레이어가 죽었는지 여부
 
-    public bool IsDead { get { return isDead; } }
+    public bool IsDead { get { return isDead; } set { this.isDead = value; } }
 
     public void Awake()
     {
@@ -122,6 +122,11 @@ public class Player : MonoBehaviour
 
     void Update()
     {
+        if(CameraEffectManager.Instance.isPaused)
+        {
+            return;
+        }
+
         // 플레이어가 죽었으면 더 이상 업데이트 로직을 실행하지 않음
         if (isDead) return;
 
@@ -324,9 +329,10 @@ public class Player : MonoBehaviour
     public float CurrentStamina
     {
         get { return currentStamina; }
+        set { this.currentStamina = value; }
     }
 
-    public int CurrentHealth {  get { return currentHealth; }    }
+    public int CurrentHealth {  get { return currentHealth; } set { this.currentHealth = value; }   }
 
     public float MaxStamina
     {
@@ -431,27 +437,7 @@ public class Player : MonoBehaviour
             Debug.LogWarning("Death Particles Prefab이 할당되지 않아 죽음 파티클을 생성할 수 없습니다.");
         }
 
-        // 플레이어 게임 오브젝트 비활성화 또는 파괴
-        // Rigidbody 비활성화 (물리 영향 받지 않도록)
-        if (rb != null)
-        {
-            rb.linearVelocity = Vector2.zero;
-            rb.angularVelocity = 0f;
-            rb.simulated = false;
-        }
-
-        // SpriteRenderer 비활성화 (캐릭터 스프라이트 숨기기)
-        if (sr != null)
-        {
-            sr.enabled = false;
-        }
-
-        // Collider 비활성화 (다른 오브젝트와 충돌하지 않도록)
-        Collider2D[] colliders = GetComponentsInChildren<Collider2D>();
-        foreach (Collider2D col in colliders)
-        {
-            col.enabled = false;
-        }
+        gameObject.SetActive(false); // 플레이어 오브젝트 비활성화
     }
 
     public void TakeDamage(int damage)

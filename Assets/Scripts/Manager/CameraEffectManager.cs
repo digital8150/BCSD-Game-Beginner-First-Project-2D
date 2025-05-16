@@ -40,6 +40,8 @@ public class CameraEffectManager : SingleTone<CameraEffectManager>
     public float slowFactor = 0.05f;
     public float slowLength = 4f;
 
+    public bool isPaused = false;
+
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
@@ -288,11 +290,13 @@ public class CameraEffectManager : SingleTone<CameraEffectManager>
     }
 
     // Update is called once per frame
-    void Update()
+    void LateUpdate()
     {
-
-        Time.timeScale += (1f / slowLength) * Time.unscaledDeltaTime;
-        Time.timeScale = Mathf.Clamp(Time.timeScale, 0f, 1f);
-        Time.fixedDeltaTime = Time.timeScale * 0.02f;
+        if(!isPaused)
+        {
+            Time.timeScale += (1f / slowLength) * Time.unscaledDeltaTime;
+            Time.timeScale = Mathf.Clamp(Time.timeScale, 0f, 1f);
+            Time.fixedDeltaTime = Time.timeScale * 0.02f;
+        }
     }
 }
