@@ -2,7 +2,7 @@ using UnityEngine;
 
 public class Enemy : MonoBehaviour
 {
-
+    [Header("적 스텟 설정")]
     [SerializeField]
     private int maxHealth = 20;
     public int CurrentHealth { get; private set; }
@@ -14,6 +14,11 @@ public class Enemy : MonoBehaviour
     private float moveSpeed = 2.0f;
 
     [SerializeField]
+    private bool isFloating = false;
+
+
+    [Header("오브젝트 연결")]
+    [SerializeField]
     private GameObject target;
 
     [SerializeField]
@@ -22,6 +27,7 @@ public class Enemy : MonoBehaviour
     private SpriteRenderer spriteRenderer;
     [SerializeField]
     private float diePositiionY = -6f;
+    
 
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
@@ -45,7 +51,7 @@ public class Enemy : MonoBehaviour
         if (target != null)
         {
             Vector3 direction = (target.transform.position - transform.position).normalized;
-            rb.linearVelocity = new Vector2(direction.x * moveSpeed, rb.linearVelocity.y);
+            rb.linearVelocity = new Vector2(direction.x * moveSpeed, isFloating ? direction.y * moveSpeed * 0.75f : rb.linearVelocityY);
         }
 
         if(rb.linearVelocityX > 0)
@@ -81,10 +87,11 @@ public class Enemy : MonoBehaviour
         }
     }
 
-    private void OnDie(bool killedbyplayer)
+    public void OnDie(bool killedbyplayer)
     {
         // Play death animation or sound here
         Instantiate(deathParticlesPrefab, transform.position, Quaternion.identity);
+        GameManager.Instance.enemies.Remove(this);
         Destroy(gameObject);
         GameManager.Instance.CurrentEnemyCount--;
         if(killedbyplayer)
@@ -92,6 +99,7 @@ public class Enemy : MonoBehaviour
             CameraEffectManager.Instance.ApplySaturationBoost();
             CameraEffectManager.Instance.ApplyPostExposureBoost();
             CameraEffectManager.Instance.ApplyCromaticAbb();
+            CameraEffectManager.Instance.ApplySlowMotion();
             GameManager.Instance.score += 500;
         }
 

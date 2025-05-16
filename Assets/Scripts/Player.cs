@@ -82,7 +82,9 @@ public class Player : MonoBehaviour
     public GameObject deathParticlesPrefab; // 플레이어 죽을 때 생성될 파티클 시스템 프리팹 (인스펙터에서 연결)
     private bool isDead = false; // 플레이어가 죽었는지 여부
 
-    void Awake()
+    public bool IsDead { get { return isDead; } }
+
+    public void Awake()
     {
         // 필요한 컴포넌트 가져오기
         rb = GetComponent<Rigidbody2D>();

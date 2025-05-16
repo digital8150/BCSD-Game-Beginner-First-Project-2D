@@ -36,6 +36,10 @@ public class CameraEffectManager : SingleTone<CameraEffectManager>
     private Coroutine fadeSBCoroutine;
     private float originalSaturationValue; // 원래 색상 조정 값 저장 
 
+    [Header("슬로우 모션 효과 설정")]
+    public float slowFactor = 0.05f;
+    public float slowLength = 4f;
+
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
@@ -99,6 +103,12 @@ public class CameraEffectManager : SingleTone<CameraEffectManager>
 
 
         base.Awake();
+    }
+
+    public void ApplySlowMotion()
+    {
+        Time.timeScale = slowFactor;
+        Time.fixedDeltaTime = Time.timeScale * 0.02f;
     }
 
     public void SetSaturation(float value)
@@ -280,6 +290,9 @@ public class CameraEffectManager : SingleTone<CameraEffectManager>
     // Update is called once per frame
     void Update()
     {
-        
+
+        Time.timeScale += (1f / slowLength) * Time.unscaledDeltaTime;
+        Time.timeScale = Mathf.Clamp(Time.timeScale, 0f, 1f);
+        Time.fixedDeltaTime = Time.timeScale * 0.02f;
     }
 }
