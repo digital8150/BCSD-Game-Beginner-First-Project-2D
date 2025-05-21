@@ -6,6 +6,9 @@ public class Enemy : MonoBehaviour
     [SerializeField]
     private int maxHealth = 20;
     public int CurrentHealth { get; private set; }
+    public int MaxHealth { get { return maxHealth; } }
+    [SerializeField]
+    private int score = 500;
 
     [SerializeField]
     private int damage = 5;
@@ -100,7 +103,7 @@ public class Enemy : MonoBehaviour
             CameraEffectManager.Instance.ApplyPostExposureBoost();
             CameraEffectManager.Instance.ApplyCromaticAbb();
             CameraEffectManager.Instance.ApplySlowMotion();
-            GameManager.Instance.score += 500;
+            GameManager.Instance.score += this.score;
         }
     }
 

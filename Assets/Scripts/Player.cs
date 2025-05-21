@@ -3,9 +3,7 @@ using System.Collections; // Coroutine 사용을 위해 추가
 using UnityEngine.Rendering;
 using UnityEngine.Rendering.Universal; // Volume 사용을 위해 추가
 
-[RequireComponent(typeof(Rigidbody2D))]
-[RequireComponent(typeof(SpriteRenderer))]
-[RequireComponent(typeof(Animator))]
+
 public class Player : MonoBehaviour
 {
     // 컴포넌트 참조
@@ -13,10 +11,9 @@ public class Player : MonoBehaviour
     private SpriteRenderer sr;
     private Animator anim;
 
+    // --- 헤더 및 인스펙터 노출 변수 ---
     [Header("이동 설정")]
     public float moveSpeed = 5f;
-    private float horizontalInput; // 현재 프레임의 수평 입력 값 (-1, 0, 1)
-    private float lastHorizontalInput = 1f; // 마지막으로 바라본 방향 (1: 오른쪽, -1: 왼쪽)
     public float airControlFactor = 0.2f; // 공중에서의 수평 제어 강도 (0: 제어 불가, 1: 지상과 동일)
 
     [Header("점프 설정")]
@@ -24,19 +21,9 @@ public class Player : MonoBehaviour
     public Transform groundCheck; // 땅 감지 오브젝트 위치 (캐릭터 발 밑)
     public float groundCheckRadius = 0.2f; // 땅 감지 범위
     public LayerMask groundLayer; // 땅으로 인식할 레이어
-    private bool isGrounded; // 현재 땅에 있는지 여부
-    private bool canDoubleJump = false; // 더블 점프 가능 여부
-
-    [Header("웅크리기 설정")]
-    private bool isCrouchingInput = false; // 웅크리기 입력 상태 (버튼 눌림 여부)
-    // public Transform ceilingCheck; // 일어설 때 천장 체크 (옵션)
-    // public float ceilingCheckRadius = 0.2f; // 천장 감지 범위 (옵션)
 
     [Header("발포 설정")]
-    private bool isAttacking = false; // 현재 발포 애니메이션 중인지 여부 (애니메이션 이벤트로 제어 권장)
-    // 발포 관련 추가 변수 (예: 총알 프리팹, 발사 위치 등)
     public GameObject bulletPrefab; // 총알 프리팹 (인스펙터에서 연결)
-
     // 플레이어 상태에 따른 발사 위치 Transform들 (인스펙터에서 연결)
     public Transform standRightFirePoint;
     public Transform standLeftFirePoint;
@@ -45,33 +32,20 @@ public class Player : MonoBehaviour
 
     [Header("플레이어 체력")]
     public int maxHealth = 10; // 최대 체력
-    private int currentHealth; // 현재 체력
     [SerializeField]
     private float invicibleDuration = 0.5f; // 무적 시간 (피격 시 잠시 무적 상태)
-    private bool isInvincible = false; // 현재 무적 상태인지 여부
-    private float invicibleStartTime = 0;
-
 
     [Header("스테미나 설정")]
     public float maxStamina = 10f;
-    private float currentStamina;
     public float staminaRechargeRate = 1f; // 초당 스테미나 회복량
     public float staminaRechargeDelay = 1f; // 스테미나 소모 후 회복 시작까지의 지연 시간
-    private float lastStaminaUseTime;
 
     [Header("대시 설정")]
     public float dashForce = 15f; // 대시 시 적용될 힘
     public float dashStaminaCost = 3.5f; // 대시 소모 스테미나
     public float dashDuration = 0.1f; // 대시 지속 시간 (순간 이동에 가깝다면 짧게)
     public float additionalYForce = 4.5f;
-    private bool isDashing = false; // 현재 대시 중인지 여부
-    private float dashEndTime;
-
-    // 대시 더블 탭 감지용 변수 (수정)
     public float doubleTapTimeThreshold = 0.3f; // 더블 탭으로 인식할 최대 시간 간격
-    private float lastHorizontalPressTime = 0f; // 마지막 수평 입력(눌림) 시간
-    private int lastPressDirection = 0; // 마지막으로 눌린 수평 방향 (-1: 왼쪽, 1: 오른쪽)
-
 
     [Header("더블 점프 설정")]
     public float doubleJumpStaminaCost = 5f; // 더블 점프 소모 스테미나
@@ -80,10 +54,48 @@ public class Player : MonoBehaviour
     [Header("죽음 설정")] // 죽음 관련 헤더 추가
     public float deathYThreshold = -5.8f; // 플레이어가 죽는 Y 좌표 임계값
     public GameObject deathParticlesPrefab; // 플레이어 죽을 때 생성될 파티클 시스템 프리팹 (인스펙터에서 연결)
+
+    // --- 내부 상태 변수 ---
+    // 이동 관련
+    private float horizontalInput; // 현재 프레임의 수평 입력 값 (-1, 0, 1)
+    private float lastHorizontalInput = 1f; // 마지막으로 바라본 방향 (1: 오른쪽, -1: 왼쪽)
+
+    // 점프 관련
+    private bool isGrounded; // 현재 땅에 있는지 여부
+    private bool canDoubleJump = false; // 더블 점프 가능 여부
+
+    // 웅크리기 관련
+    private bool isCrouchingInput = false; // 웅크리기 입력 상태 (버튼 눌림 여부)
+
+    // 발포 관련
+    private bool isAttacking = false; // 현재 발포 애니메이션 중인지 여부 (애니메이션 이벤트로 제어 권장)
+
+    // 체력 관련
+    private int currentHealth; // 현재 체력
+    private bool isInvincible = false; // 현재 무적 상태인지 여부
+    private float invicibleStartTime = 0;
+
+    // 스테미나 관련
+    private float currentStamina;
+    private float lastStaminaUseTime;
+
+    // 대시 관련
+    private bool isDashing = false; // 현재 대시 중인지 여부
+    private float dashEndTime;
+    private float lastHorizontalPressTime = 0f; // 마지막 수평 입력(눌림) 시간
+    private int lastPressDirection = 0; // 마지막으로 눌린 수평 방향 (-1: 왼쪽, 1: 오른쪽)
+
+    // 죽음 관련
     private bool isDead = false; // 플레이어가 죽었는지 여부
 
+    // --- 프로퍼티 ---
     public bool IsDead { get { return isDead; } set { this.isDead = value; } }
+    public float CurrentStamina { get { return currentStamina; } set { this.currentStamina = value; } }
+    public int CurrentHealth { get { return currentHealth; } set { this.currentHealth = value; } }
+    public float MaxStamina { get { return maxStamina; } }
 
+
+    // --- Unity 라이프사이클 함수 ---
     public void Awake()
     {
         // 필요한 컴포넌트 가져오기
@@ -111,9 +123,6 @@ public class Player : MonoBehaviour
             Debug.LogWarning("Death Particles Prefab이 할당되지 않았습니다. 플레이어 죽음 시 파티클 효과가 나타나지 않습니다.");
         }
 
-
-
-
         // 스텟 초기화
         currentStamina = maxStamina;
         lastStaminaUseTime = Time.time; // 시작 시 회복 바로 시작하도록 설정
@@ -122,7 +131,7 @@ public class Player : MonoBehaviour
 
     void Update()
     {
-        if(CameraEffectManager.Instance.isPaused)
+        if (CameraEffectManager.Instance.isPaused)
         {
             return;
         }
@@ -163,10 +172,11 @@ public class Player : MonoBehaviour
         // ==== 발포 입력 및 애니메이션 트리거 발동 ====
         // 발포 버튼이 눌렸고, 공격 중이 아닐 때 발포 시도
         // 지상에서만 발포 가능하도록 isGrounded 조건 추가
-        if (Input.GetButtonDown("Fire1") && !isAttacking && isGrounded) // 유니티 Input Manager에 "Fire1" 설정 필요 (기본 Left Mouse Button)
+        if (Input.GetButton("Fire1") && !isAttacking && isGrounded) // 유니티 Input Manager에 "Fire1" 설정 필요 (기본 Left Mouse Button)
         {
             // 발포 애니메이션 트리거 발동
             anim.SetTrigger("ShootTrigger");
+            isAttacking = true;
 
             // ==== 실제 발포 로직 호출 ====
             Shoot();
@@ -236,7 +246,7 @@ public class Player : MonoBehaviour
         if (isInvincible && Time.time - invicibleStartTime >= invicibleDuration)
         {
             isInvincible = false; // 무적 상태 해제
-            
+
         }
     }
 
@@ -272,10 +282,19 @@ public class Player : MonoBehaviour
         {
             if (isGrounded) // 지상 이동
             {
-                rb.linearVelocity = new Vector2(horizontalInput * moveSpeed, rb.linearVelocity.y); // Update에서 저장된 horizontalInput 사용
+                rb.linearVelocityX = horizontalInput * moveSpeed; // Update에서 저장된 horizontalInput 사용
+                Debug.Log($"수평 입력 : {horizontalInput}");
             }
             else // 공중 이동 제어 제한
             {
+                if(rb.linearVelocityX > moveSpeed)
+                {
+                    rb.linearVelocityX = moveSpeed; // 최대 속도 제한
+                }
+                else if (rb.linearVelocityX < -moveSpeed)
+                {
+                    rb.linearVelocityX = -moveSpeed; // 최대 속도 제한
+                }
                 rb.linearVelocity = new Vector2(rb.linearVelocity.x + horizontalInput * moveSpeed * airControlFactor * Time.fixedDeltaTime, rb.linearVelocity.y); // Update에서 저장된 horizontalInput 사용
             }
         }
@@ -289,6 +308,7 @@ public class Player : MonoBehaviour
         }
     }
 
+    // --- 핵심 동작 함수 ---
     void Jump(float force)
     {
         rb.linearVelocity = new Vector2(rb.linearVelocity.x, 0f);
@@ -305,38 +325,6 @@ public class Player : MonoBehaviour
 
             rb.linearVelocity = new Vector2(direction * dashForce, rb.linearVelocity.y + additionalYForce);
         }
-    }
-
-    void ConsumeStamina(float amount)
-    {
-        currentStamina -= amount;
-        currentStamina = Mathf.Clamp(currentStamina, 0, maxStamina);
-        lastStaminaUseTime = Time.time;
-    }
-
-    // 애니메이션 이벤트 함수: 발포 애니메이션 시작 시 호출
-    public void StartAttack()
-    {
-        isAttacking = true;
-    }
-
-    // 애니메이션 이벤트 함수: 발포 애니메이션 종료 시 호출
-    public void EndAttack()
-    {
-        isAttacking = false;
-    }
-
-    public float CurrentStamina
-    {
-        get { return currentStamina; }
-        set { this.currentStamina = value; }
-    }
-
-    public int CurrentHealth {  get { return currentHealth; } set { this.currentHealth = value; }   }
-
-    public float MaxStamina
-    {
-        get { return maxStamina; }
     }
 
     // 실제 발포 로직을 구현할 함수
@@ -414,8 +402,6 @@ public class Player : MonoBehaviour
         Debug.Log("총알 발사!"); // 실제 발포 기능 구현 (예: 총알 오브젝트 생성 및 초기화)
     }
 
-
-
     // 플레이어가 죽을 때 호출될 함수
     void Die()
     {
@@ -444,16 +430,41 @@ public class Player : MonoBehaviour
     {
         if (isDead) return;
         if (isInvincible) return; // 무적 상태일 때는 피해를 받지 않음
-        CameraEffectManager.Instance.SetSaturation(-(maxHealth - CurrentHealth)*5);
+        CameraEffectManager.Instance.SetSaturation(-(maxHealth - CurrentHealth) * 5);
         currentHealth -= damage;
         Debug.Log($"데미지 입음 : {damage} 체력 : {CurrentHealth}");
         if (currentHealth <= 0)
         {
             Die();
         }
-        CameraEffectManager.Instance.ApplyCameraShake(0.15f, 0.1f);
+        else if(currentHealth <= 5)
+        {
+            GameManager.Instance.ShowCaption("주의하세요! 체력이 얼마 남지 않았습니다.");
+        }
+            CameraEffectManager.Instance.ApplyCameraShake(0.15f, 0.1f);
         //무적적용
         isInvincible = true;
         invicibleStartTime = Time.time;
+    }
+
+    // --- 유틸리티 / 헬퍼 함수 ---
+    void ConsumeStamina(float amount)
+    {
+        currentStamina -= amount;
+        currentStamina = Mathf.Clamp(currentStamina, 0, maxStamina);
+        lastStaminaUseTime = Time.time;
+    }
+
+    // --- 애니메이션 이벤트 함수 ---
+    // 애니메이션 이벤트 함수: 발포 애니메이션 시작 시 호출
+    public void StartAttack()
+    {
+        isAttacking = true;
+    }
+
+    // 애니메이션 이벤트 함수: 발포 애니메이션 종료 시 호출
+    public void EndAttack()
+    {
+        isAttacking = false;
     }
 }

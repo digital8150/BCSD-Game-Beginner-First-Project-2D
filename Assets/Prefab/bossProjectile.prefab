@@ -1,6 +1,6 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
---- !u!1 &8113009414664524319
+--- !u!1 &8970570063521681944
 GameObject:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -8,41 +8,41 @@ GameObject:
   m_PrefabAsset: {fileID: 0}
   serializedVersion: 6
   m_Component:
-  - component: {fileID: 3762863424388798045}
-  - component: {fileID: 6649477187189947320}
-  - component: {fileID: 236623533552630291}
-  - component: {fileID: 9170089783404726457}
-  - component: {fileID: 7275289528987311528}
-  - component: {fileID: 2837410923985519782}
+  - component: {fileID: 6795173859923165750}
+  - component: {fileID: 1854731966113080216}
+  - component: {fileID: 5563884557196682276}
+  - component: {fileID: 6418781632552048891}
+  - component: {fileID: 6011910940934485558}
+  - component: {fileID: 386505546004495239}
   m_Layer: 0
-  m_Name: EnemyGhost
-  m_TagString: Enemy
+  m_Name: bossProjectile
+  m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!4 &3762863424388798045
+--- !u!4 &6795173859923165750
 Transform:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8113009414664524319}
+  m_GameObject: {fileID: 8970570063521681944}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: -0.012, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!212 &6649477187189947320
+--- !u!212 &1854731966113080216
 SpriteRenderer:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8113009414664524319}
+  m_GameObject: {fileID: 8970570063521681944}
   m_Enabled: 1
   m_CastShadows: 0
   m_ReceiveShadows: 0
@@ -59,7 +59,7 @@ SpriteRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: a97c105638bdf8b4a8650670310a4cd3, type: 2}
+  - {fileID: 0}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -80,28 +80,28 @@ SpriteRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 3
-  m_Sprite: {fileID: 21300000, guid: f62996eeedd3848f9861a4d9257f66a3, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 675365aa3ad6e43d68d9a1c619c7e63a, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
-  m_Size: {x: 0.31, y: 0.44}
+  m_Size: {x: 0.25, y: 0.06}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
---- !u!95 &236623533552630291
+--- !u!95 &5563884557196682276
 Animator:
   serializedVersion: 7
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8113009414664524319}
+  m_GameObject: {fileID: 8970570063521681944}
   m_Enabled: 1
   m_Avatar: {fileID: 0}
-  m_Controller: {fileID: 9100000, guid: 4c2b1a69132579b43b99f5f5ff045b1a, type: 2}
+  m_Controller: {fileID: 9100000, guid: 4a39b07aa1001264586221aa95c31293, type: 2}
   m_CullingMode: 0
   m_UpdateMode: 0
   m_ApplyRootMotion: 0
@@ -113,60 +113,40 @@ Animator:
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
   m_WriteDefaultValuesOnDisable: 0
---- !u!50 &9170089783404726457
-Rigidbody2D:
-  serializedVersion: 5
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8113009414664524319}
-  m_BodyType: 0
-  m_Simulated: 1
-  m_UseFullKinematicContacts: 0
-  m_UseAutoMass: 0
-  m_Mass: 1
-  m_LinearDamping: 0
-  m_AngularDamping: 0.05
-  m_GravityScale: 0
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_Interpolate: 0
-  m_SleepingMode: 1
-  m_CollisionDetection: 0
-  m_Constraints: 4
---- !u!114 &7275289528987311528
+--- !u!114 &6418781632552048891
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8113009414664524319}
+  m_GameObject: {fileID: 8970570063521681944}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3980a31ff63b2674885ceb8c7a6df0e3, type: 3}
+  m_Script: {fileID: 11500000, guid: c3576731e38e4eb468a05d551dbf9508, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  maxHealth: 30
-  score: 700
-  damage: 7
-  moveSpeed: 6.5
-  isFloating: 1
-  target: {fileID: 0}
-  deathParticlesPrefab: {fileID: 4147466137340990320, guid: 24018342c2bb4ca41a6773ef1378c3e7, type: 3}
-  diePositiionY: -6
---- !u!70 &2837410923985519782
+  moveSpeed: 30
+  moveDirection: {x: 0, y: 0, z: 0}
+--- !u!114 &6011910940934485558
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8970570063521681944}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b544c1d13c1b5f340b7b584e7d97165d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  damage: 10
+--- !u!70 &386505546004495239
 CapsuleCollider2D:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8113009414664524319}
+  m_GameObject: {fileID: 8970570063521681944}
   m_Enabled: 1
   serializedVersion: 3
   m_Density: 1
@@ -190,10 +170,10 @@ CapsuleCollider2D:
   m_CallbackLayers:
     serializedVersion: 2
     m_Bits: 4294967295
-  m_IsTrigger: 0
+  m_IsTrigger: 1
   m_UsedByEffector: 0
   m_CompositeOperation: 0
   m_CompositeOrder: 0
   m_Offset: {x: 0, y: 0}
-  m_Size: {x: 0.75, y: 4}
-  m_Direction: 0
+  m_Size: {x: 1.5, y: 0.25}
+  m_Direction: 1
