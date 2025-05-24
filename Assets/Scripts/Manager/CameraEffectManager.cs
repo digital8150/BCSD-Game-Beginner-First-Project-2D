@@ -1,7 +1,6 @@
 using UnityEngine;
 using UnityEngine.Rendering.Universal;
 using UnityEngine.Rendering;
-using System.Collections.Generic;
 using System.Collections;
 
 public class CameraEffectManager : SingleTone<CameraEffectManager>
@@ -37,8 +36,8 @@ public class CameraEffectManager : SingleTone<CameraEffectManager>
     private float originalSaturationValue; // 원래 색상 조정 값 저장 
 
     [Header("슬로우 모션 효과 설정")]
-    public float slowFactor = 0.05f;
-    public float slowLength = 4f;
+    public float slowFactor = 0.025f;
+    public float slowLength = 0.5f;
 
     public bool isPaused = false;
 
@@ -107,6 +106,64 @@ public class CameraEffectManager : SingleTone<CameraEffectManager>
         base.Awake();
     }
 
+    public void AttachMainCamera(Camera mainCamera)
+    {
+        this.mainCamera = mainCamera;
+        // Global Volume 및 Chromatic Aberration 컴포넌트 가져오기
+        if (mainCamera != null)
+        {
+            globalVolume = mainCamera.GetComponent<Volume>();
+            if (globalVolume != null)
+            {
+                // Volume 프로파일에서 ChromaticAberration 설정 가져오기
+                if (globalVolume.profile.TryGet(out cb))
+                {
+                    // ChromaticAberration 컴포넌트를 찾았고 활성화되어 있다면 초기 강도를 0으로 설정
+                    if (cb.active)
+                    {
+                        cb.intensity.value = 0f;
+                    }
+                    else
+                    {
+                        Debug.LogWarning("ChromaticAberration 효과가 Volume 프로파일에 있지만 활성화되어 있지 않습니다.");
+                    }
+                }
+                else
+                {
+                    Debug.LogWarning("Volume 프로파일에서 ChromaticAberration 효과를 찾을 수 없습니다.");
+                }
+
+                // Volume 프로파일에서 ColorAdjustments 설정 가져오기
+                if (globalVolume.profile.TryGet(out colorAdjustments))
+                {
+                    // ColorAdjustments 컴포넌트를 찾았고 활성화되어 있다면 초기 색상 조정 값 설정
+                    if (colorAdjustments.active)
+                    {
+                        colorAdjustments.postExposure.value = 0f;
+                        colorAdjustments.saturation.value = 0f;
+                    }
+                    else
+                    {
+                        Debug.LogWarning("ColorAdjustments 효과가 Volume 프로파일에 있지만 활성화되어 있지 않습니다.");
+                    }
+                }
+                else
+                {
+                    Debug.LogWarning("Volume 프로파일에서 ColorAdjustments 효과를 찾을 수 없습니다.");
+                }
+            }
+            else
+            {
+                Debug.LogWarning("메인 카메라에 Volume 컴포넌트가 없습니다.");
+            }
+        }
+        else
+        {
+            Debug.LogError("메인 카메라(Main Camera) 참조가 Player 스크립트에 연결되지 않았습니다!");
+        }
+    }
+
+    public System.Action OnSlowMotionAudio;
     public void ApplySlowMotion()
     {
         Time.timeScale = slowFactor;
@@ -297,6 +354,8 @@ public class CameraEffectManager : SingleTone<CameraEffectManager>
             Time.timeScale += (1f / slowLength) * Time.unscaledDeltaTime;
             Time.timeScale = Mathf.Clamp(Time.timeScale, 0f, 1f);
             Time.fixedDeltaTime = Time.timeScale * 0.02f;
+
+            OnSlowMotionAudio.Invoke();
         }
     }
 }

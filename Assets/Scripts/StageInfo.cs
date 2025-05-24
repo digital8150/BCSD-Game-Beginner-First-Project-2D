@@ -9,6 +9,7 @@ public class StageInfo : MonoBehaviour
     public string StageName { get { return stageName; } }
     [SerializeField]
     private int bossThresholdScore;
+    private int bossThresholdScoreInital;
     public int BossThresholdScore { get { return bossThresholdScore; } set { bossThresholdScore = value; } }
 
     [Header("스테이지 오브젝트 연결")]
@@ -20,10 +21,11 @@ public class StageInfo : MonoBehaviour
 
     private async void Start()
     {
-        if(this.mainCamera != null)
+        await System.Threading.Tasks.Task.Delay(500);
+        if (this.mainCamera != null)
         {
             if(GameManager.Instance.mainCamera == null) GameManager.Instance.mainCamera = this.mainCamera;
-            if(CameraEffectManager.Instance.mainCamera == null) CameraEffectManager.Instance.mainCamera = this.mainCamera;
+            if(CameraEffectManager.Instance.mainCamera == null) CameraEffectManager.Instance.AttachMainCamera(this.mainCamera);
         }
         if (this.player != null && GameManager.Instance.player == null)
         {
@@ -32,7 +34,19 @@ public class StageInfo : MonoBehaviour
         }
         GameManager.Instance.stageInfo = this;
 
-        await System.Threading.Tasks.Task.Delay(2000);
+        await System.Threading.Tasks.Task.Delay(1500);
         GameManager.Instance.ShowCaption(stageName);
+
+        bossThresholdScoreInital = bossThresholdScore;
+    }
+
+    public void increaseBossThreshold()
+    {
+        bossThresholdScore += bossThresholdScoreInital + (bossThresholdScore / 2);
+    }
+
+    public void ResetBossThreshold()
+    {
+        bossThresholdScore = bossThresholdScoreInital;
     }
 }

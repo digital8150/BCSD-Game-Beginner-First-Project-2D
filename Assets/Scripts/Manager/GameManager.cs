@@ -1,14 +1,8 @@
 using TMPro;
-using Unity.VisualScripting;
 using UnityEngine;
-using UnityEngine.Rendering;
-using UnityEngine.Rendering.Universal;
 using UnityEngine.UI;
 
 using System.Collections.Generic;
-using System.Runtime.CompilerServices;
-using UnityEngine.SceneManagement;
-
 public class GameManager : SingleTone<GameManager>
 {
     [Header("UI 설정")]
@@ -49,7 +43,9 @@ public class GameManager : SingleTone<GameManager>
     public List<Enemy> enemies = new List<Enemy>();
     public int CurrentEnemyCount { get; set; } = 0;
     private float enemySpawnTimer = 0f;
+    [SerializeField]
     private float enemySpawnInterval = 5f;
+    private float enemySpawnIntervalInitial;
 
     [Header("점수 설정")]
     [SerializeField]
@@ -65,6 +61,7 @@ public class GameManager : SingleTone<GameManager>
     public override void Awake()
     {
         base.Awake();
+        enemySpawnIntervalInitial = enemySpawnInterval;
         staminaSlider.GetComponent<PositionAutoSetter>().Setup(player.transform);
         healthSlider.GetComponent<PositionAutoSetter>().Setup(player.transform);
         gameOver.gameObject.SetActive(false);
@@ -122,7 +119,7 @@ public class GameManager : SingleTone<GameManager>
 
         // n초마다, 적 생성
         enemySpawnTimer += Time.fixedDeltaTime;
-        if (CurrentEnemyCount < maxEnemyCount && enemySpawnTimer >= enemySpawnInterval)
+        if (CurrentEnemyCount < maxEnemyCount && enemySpawnTimer >= (enemySpawnInterval + Random.Range(0.0f, 1.25f)) && SpawnedBoss == null)
         {
 
             Camera cam = mainCamera.GetComponent<Camera>();
@@ -148,7 +145,7 @@ public class GameManager : SingleTone<GameManager>
 
             CurrentEnemyCount++;
             enemySpawnTimer = 0f;
-            enemySpawnInterval = Random.Range(1f, 5f);
+            enemySpawnInterval *= 0.96f;
         }
         
         if (score > stageInfo.BossThresholdScore)
@@ -168,7 +165,7 @@ public class GameManager : SingleTone<GameManager>
         SpawnedBoss.GetComponent<Enemy>().Setup(player.gameObject);
         CameraEffectManager.Instance.ApplyCameraShake();
         ShowCaption("강력한 적이 등장합니다 조심하세요!");
-        stageInfo.BossThresholdScore += stageInfo.BossThresholdScore;
+        stageInfo.increaseBossThreshold();
         bossHPSlider.GetComponent<EnemyHPSlider>().Setup(SpawnedBoss, true);
         bossHPSlider.SetActive(true);
     }
@@ -231,7 +228,7 @@ public class GameManager : SingleTone<GameManager>
             enemy.kill();
         }
         enemies.RemoveAll(enemy => true);
-        if(SpawnedBoss != null) SpawnedBoss.GetComponent<Enemy>().kill();
+        if (SpawnedBoss != null) SpawnedBoss.GetComponent<Enemy>().kill();
 
 
 
@@ -242,10 +239,11 @@ public class GameManager : SingleTone<GameManager>
         player.IsDead = false;
         player.CurrentHealth = player.maxHealth;
         player.CurrentStamina = player.MaxStamina;
-        stageInfo.BossThresholdScore = 15000;
+        stageInfo.ResetBossThreshold();
         scoreText.gameObject.SetActive(true);
         gameOver.SetActive(false);
         resume.SetActive(false);
+        enemySpawnInterval = enemySpawnIntervalInitial;
         CameraEffectManager.Instance.SetSaturation(0);
         score = 0;
         scoreTimer = Time.time;

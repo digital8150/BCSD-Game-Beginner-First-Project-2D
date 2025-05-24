@@ -1,7 +1,4 @@
 using UnityEngine;
-using System.Collections; // Coroutine 사용을 위해 추가
-using UnityEngine.Rendering;
-using UnityEngine.Rendering.Universal; // Volume 사용을 위해 추가
 
 
 public class Player : MonoBehaviour
@@ -330,6 +327,8 @@ public class Player : MonoBehaviour
     // 실제 발포 로직을 구현할 함수
     void Shoot()
     {
+        AudioManager.Instance.PlaySound("PlayerAttack");
+
         // 총알 프리팹이 할당되었는지 확인
         if (bulletPrefab == null)
         {
@@ -430,8 +429,8 @@ public class Player : MonoBehaviour
     {
         if (isDead) return;
         if (isInvincible) return; // 무적 상태일 때는 피해를 받지 않음
-        CameraEffectManager.Instance.SetSaturation(-(maxHealth - CurrentHealth) * 5);
         currentHealth -= damage;
+        CameraEffectManager.Instance.SetSaturation(-(maxHealth - CurrentHealth) * 5);
         Debug.Log($"데미지 입음 : {damage} 체력 : {CurrentHealth}");
         if (currentHealth <= 0)
         {

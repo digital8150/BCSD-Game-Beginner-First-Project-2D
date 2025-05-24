@@ -1,6 +1,5 @@
 using UnityEngine.SceneManagement;
 using UnityEngine;
-using UnityEngine.UI;
 using System.Threading.Tasks;
 public class SceneChanger : MonoBehaviour
 {

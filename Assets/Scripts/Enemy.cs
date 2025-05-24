@@ -99,6 +99,7 @@ public class Enemy : MonoBehaviour
         GameManager.Instance.CurrentEnemyCount--;
         if(killedbyplayer)
         {
+            AudioManager.Instance.PlaySound("EnemyHit");
             CameraEffectManager.Instance.ApplySaturationBoost();
             CameraEffectManager.Instance.ApplyPostExposureBoost();
             CameraEffectManager.Instance.ApplyCromaticAbb();
